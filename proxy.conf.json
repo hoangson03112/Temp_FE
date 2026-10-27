@@ -1,0 +1,7 @@
+{
+  "/DXXRDV": {
+    "target": "https://localhost:7187",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "3d86fdc9-97f4-48d4-a8e8-45d8364d477c"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -25,15 +26,14 @@
               }
             ],
             "styles": [
+              "node_modules/devextreme/dist/css/dx.light.css",
+              "node_modules/@devexpress/analytics-core/dist/css/dx-analytics.common.css",
+              "node_modules/@devexpress/analytics-core/dist/css/dx-analytics.light.css",
+              "node_modules/devexpress-reporting/dist/css/dx-webdocumentviewer.css",
               "src/styles.css"
             ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
             "security": {
               "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "src/server.ts"
             }
           },
           "configurations": {

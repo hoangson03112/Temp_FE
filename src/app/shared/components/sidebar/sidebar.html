@@ -1,0 +1,96 @@
+<!-- Wrapper cho Drawer -->
+<dx-drawer
+  [opened]="layoutService.isOpenSidebar()"
+  [shading]="false"
+  [revealMode]="'slide'"
+  [position]="'left'"
+>
+  <aside
+    *dxTemplate="let data of 'panel'"
+    class="flex w-70 h-full flex-col bg-white border-r border-slate-200 select-none"
+    aria-label="Điều hướng chính"
+  >
+    <header
+      class="flex h-16 shrink-0 items-center justify-between gap-3 px-5 border-b border-slate-100"
+    >
+      <div class="flex items-center gap-3 min-w-0">
+        <div
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold tracking-wide text-white"
+          aria-hidden="true"
+        >
+          FE
+        </div>
+        <div class="min-w-0 leading-tight">
+          <p class="truncate text-sm font-semibold text-slate-900">Platform Console</p>
+          <p class="truncate text-xs text-slate-500">Workspace</p>
+        </div>
+      </div>
+    </header>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Menu chính">
+      <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        Menu chính
+      </p>
+
+      <ul class="flex flex-col gap-0.5">
+        @for (item of navItems; track item.path) {
+          <li>
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="active-nav-item"
+              [routerLinkActiveOptions]="{ exact: false }"
+              ariaCurrentWhenActive="page"
+              (click)="handleNavClick(item)"
+              class="group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors [&.active-nav-item]:bg-blue-50 [&.active-nav-item]:text-blue-700"
+            >
+              <span
+                class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-blue-600 opacity-0 transition-opacity group-[.active-nav-item]:opacity-100"
+                aria-hidden="true"
+              ></span>
+
+              <ng-icon
+                [name]="item.icon"
+                size="20"
+                class="shrink-0 text-slate-400 group-hover:text-slate-600 group-[.active-nav-item]:text-blue-600"
+              ></ng-icon>
+
+              <span class="truncate">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <footer class="shrink-0 border-t border-slate-100 p-3">
+      <div class="flex items-center gap-3 rounded-xl p-2">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700"
+          aria-hidden="true"
+        >
+          {{ (authService.user()?.fullName || 'U').charAt(0).toUpperCase() }}
+        </div>
+
+        <div class="min-w-0 flex-1 leading-tight">
+          <p class="truncate text-sm font-semibold text-slate-900">
+            {{ authService.user()?.fullName || 'Người dùng' }}
+          </p>
+          <p class="truncate text-xs text-slate-500">
+            {{ authService.user()?.role === 'Admin' ? 'Quản trị viên' : 'Thành viên' }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          (click)="logout()"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 transition-colors"
+          aria-label="Đăng xuất"
+          title="Đăng xuất"
+        >
+          <ng-icon name="heroArrowRightOnRectangle" size="20"></ng-icon>
+        </button>
+      </div>
+
+      <p class="px-2 pt-2 text-[11px] text-slate-400">v1.0.0</p>
+    </footer>
+  </aside>
+</dx-drawer>

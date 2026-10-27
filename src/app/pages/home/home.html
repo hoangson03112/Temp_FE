@@ -1,0 +1,117 @@
+<div class="overflow-y-hidden h-screen bg-gray-100 p-5">
+  <app-layout class="flex-1">
+    <div class="p-8 bg-white rounded-xl shadow-sm h-full flex flex-col justify-start">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">Hệ Thống Quản Lý</h1>
+      <p class="text-gray-500 mb-8">Chào mừng bạn đến với hệ thống quản trị sản phẩm.</p>
+
+      <div class="grid grid-cols-4 gap-4 w-full">
+        <div class="grid grid-cols-1 gap-6 max-w-2xl">
+          <a
+            routerLink="/san-pham"
+            class="block p-6 rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group bg-gradient-to-br from-blue-50/50 to-white"
+          >
+            <div class="text-4xl mb-3">📦</div>
+            <h2 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 mb-2">
+              Quản Lý Sản Phẩm
+            </h2>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Quản lý danh sách sản phẩm, bộ lọc nâng cao, thêm mới, sửa, xóa và xuất bản in báo cáo
+              PDF.
+            </p>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 gap-6 max-w-2xl">
+          <a
+            routerLink="/danh-muc"
+            class="block p-6 rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group bg-gradient-to-br from-blue-50/50 to-white"
+          >
+            <div class="text-4xl mb-3">📦</div>
+            <h2 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 mb-2">
+              Quản Lý Danh Mục
+            </h2>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Quản lý danh sách danh mục, bộ lọc nâng cao, thêm mới, sửa, xóa và xuất bản in báo cáo
+              PDF.
+            </p>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 gap-6 max-w-2xl">
+          <a
+            routerLink="/san-pham"
+            class="block p-6 rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group bg-gradient-to-br from-blue-50/50 to-white"
+          >
+            <div class="text-4xl mb-3">📦</div>
+            <h2 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 mb-2">
+              Quản Lý Sản Phẩm
+            </h2>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Quản lý danh sách sản phẩm, bộ lọc nâng cao, thêm mới, sửa, xóa và xuất bản in báo cáo
+              PDF.
+            </p>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 gap-6 max-w-2xl">
+          <a
+            routerLink="/san-pham"
+            class="block p-6 rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group bg-gradient-to-br from-blue-50/50 to-white"
+          >
+            <div class="text-4xl mb-3">📦</div>
+            <h2 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 mb-2">
+              Quản Lý Sản Phẩm
+            </h2>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Quản lý danh sách sản phẩm, bộ lọc nâng cao, thêm mới, sửa, xóa và xuất bản in báo cáo
+              PDF.
+            </p>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 gap-6 max-w-2xl">
+          <div
+            (click)="openMau12Preview()"
+            class="cursor-pointer block p-6 rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group bg-gradient-to-br from-blue-50/50 to-white"
+          >
+            <div class="text-4xl mb-3">📦</div>
+            <h2 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 mb-2">
+              Mẫu số 12-CBH
+            </h2>
+            <p class="text-sm text-gray-500 leading-relaxed">Xem báo cáo Mẫu số 12-CBH</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-layout>
+</div>
+<dx-popup
+  [fullScreen]="true"
+  [(visible)]="isPdfPreviewOpen"
+  (onHiding)="closePdfPreview()"
+  [showTitle]="true"
+  title="Mẫu số 12-CBH"
+  [showCloseButton]="true"
+  [hideOnOutsideClick]="false"
+>
+  <div *dxTemplate="let data of 'content'" class="flex flex-col w-full h-full overflow-hidden">
+    <div class="flex-1 w-full h-full overflow-hidden bg-gray-700">
+      @if (pdfSafeUrl()) {
+        <iframe
+          id="mau12PdfFrame"
+          class="w-full h-full border-0 block"
+          [src]="pdfSafeUrl()"
+          title="DevExpress Mau12 Report PDF"
+        ></iframe>
+      } @else {
+        <div class="flex items-center justify-center w-full h-full text-white text-sm gap-3">
+          <i class="dx-icon-clock text-2xl text-gray-300"></i>
+          <p>Đang chuẩn bị dữ liệu báo cáo...</p>
+        </div>
+      }
+    </div>
+  </div>
+</dx-popup>
+<dx-load-panel
+  [visible]="isLoading()"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  message="Hệ thống đang tải dữ liệu..."
+></dx-load-panel>

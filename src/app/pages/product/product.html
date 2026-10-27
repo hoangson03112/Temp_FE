@@ -1,0 +1,408 @@
+<div class="h-screen bg-gray-100 p-4 overflow-hidden flex flex-col">
+  <app-layout class="flex-1 flex flex-col h-full overflow-hidden">
+    <div
+      class="flex-1 flex flex-col h-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative"
+    >
+      <div class="px-3 py-2 border-b border-gray-200 bg-white shadow-xs shrink-0">
+        <dx-toolbar>
+          <dxi-item location="before" locateInMenu="never">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
+                <i class="dx-icon-box text-blue-600 text-xl"></i>
+                <span class="font-bold text-sm text-gray-800 tracking-tight">
+                  Quản Lý Sản Phẩm
+                </span>
+              </div>
+              <app-select></app-select>
+            </div>
+          </dxi-item>
+
+          <dxi-item class="flex gap-2" location="after" locateInMenu="never">
+            <dx-button
+              icon="plus"
+              text="Thêm sản phẩm"
+              type="default"
+              stylingMode="contained"
+              (onClick)="openAddPopup()"
+            ></dx-button>
+            <dx-button
+              icon="print"
+              text="In / Xem Báo Cáo"
+              type="default"
+              stylingMode="contained"
+              hint="Mở bản in báo cáo danh sách sản phẩm"
+              [disabled]="isLoading()"
+              (onClick)="openPdfPreview()"
+            ></dx-button>
+          </dxi-item>
+
+          <dxi-item location="after" locateInMenu="auto">
+            <dx-button
+              icon="preferences"
+              [text]="isFilterOpen() ? 'Đóng bộ lọc' : 'Mở bộ lọc'"
+              stylingMode="outlined"
+              (onClick)="toggleFilter()"
+            ></dx-button>
+          </dxi-item>
+
+          <dxi-item location="after" locateInMenu="auto">
+            <dx-button
+              icon="refresh"
+              text="Tải lại"
+              stylingMode="outlined"
+              [disabled]="isLoading()"
+              (onClick)="refresh()"
+            ></dx-button>
+          </dxi-item>
+
+          <!-- <dxi-item location="after" locateInMenu="auto">
+            <dx-button
+              icon="download"
+              text="Tải PDF"
+              stylingMode="outlined"
+              [disabled]="isLoading()"
+              (onClick)="downloadPdfDirectly()"
+            ></dx-button>
+          </dxi-item> -->
+
+          <!-- <dxi-item location="after" locateInMenu="auto">
+            <dx-button
+              icon="codeblock"
+              text="Code / API"
+              stylingMode="text"
+              hint="Mở ngăn kéo kỹ thuật xem cấu trúc dữ liệu JSON & API"
+              (onClick)="toggleDrawer()"
+            ></dx-button>
+          </dxi-item> -->
+        </dx-toolbar>
+      </div>
+
+      <div class="flex flex-row flex-1 overflow-hidden relative">
+        @if (isFilterOpen()) {
+          <div
+            class="w-72 h-full bg-white border-r border-gray-200 flex flex-col shrink-0 z-10 shadow-xs"
+          >
+            <div
+              class="px-4 py-3 flex items-center justify-between border-b border-gray-200 bg-gray-50"
+            >
+              <h4 class="m-0 text-xs font-bold flex items-center gap-2 text-gray-800">
+                <i class="dx-icon-preferences text-blue-600 text-base"></i>
+                Bộ Lọc & Cấu Hình
+              </h4>
+              <dx-button icon="close" stylingMode="text" (onClick)="toggleFilter()"></dx-button>
+            </div>
+
+            <div class="p-4 flex flex-col gap-4 overflow-y-auto flex-1">
+              <dx-text-box
+                label="Tìm kiếm từ khóa"
+                labelMode="floating"
+                [(value)]="filterKeyword"
+                placeholder="Tên hoặc mã sản phẩm..."
+                [showClearButton]="true"
+              ></dx-text-box>
+
+              <dx-select-box
+                label="Trạng thái sản phẩm"
+                labelMode="floating"
+                [items]="statusFilterOptions"
+                displayExpr="text"
+                valueExpr="value"
+                [(value)]="filterStatus"
+              ></dx-select-box>
+
+              <div class="grid grid-cols-2 gap-2">
+                <dx-number-box
+                  label="Giá từ"
+                  labelMode="floating"
+                  [(value)]="filterMinPrice"
+                  [min]="0"
+                  format="#,##0"
+                ></dx-number-box>
+                <dx-number-box
+                  label="Giá đến"
+                  labelMode="floating"
+                  [(value)]="filterMaxPrice"
+                  [min]="0"
+                  format="#,##0"
+                ></dx-number-box>
+              </div>
+
+              <dx-select-box
+                label="Thứ tự sắp xếp"
+                labelMode="floating"
+                [items]="sortOrderOptions"
+                displayExpr="text"
+                valueExpr="value"
+                [(value)]="filterIsAscending"
+              ></dx-select-box>
+
+              <div class="flex flex-col gap-2 pt-2">
+                <dx-button
+                  icon="check"
+                  text="Áp dụng bộ lọc"
+                  type="default"
+                  stylingMode="contained"
+                  [width]="'100%'"
+                  [disabled]="isLoading()"
+                  (onClick)="applyFilter()"
+                ></dx-button>
+
+                <dx-button
+                  icon="revert"
+                  text="Đặt lại mặc định"
+                  stylingMode="outlined"
+                  [width]="'100%'"
+                  (onClick)="resetFilter()"
+                ></dx-button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden p-3 bg-gray-50/50">
+          <dx-data-grid
+            [dataSource]="dataSource"
+            [remoteOperations]="true"
+            [showBorders]="true"
+            [showRowLines]="true"
+            [rowAlternationEnabled]="true"
+            [allowColumnReordering]="true"
+            [allowColumnResizing]="true"
+            [columnAutoWidth]="true"
+            [height]="'100%'"
+            class="bg-white rounded-lg shadow-2xs"
+          >
+            <dxo-search-panel
+              [visible]="true"
+              placeholder="Tìm kiếm nhanh sản phẩm..."
+            ></dxo-search-panel>
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-paging [pageSize]="filterPageSize"></dxo-paging>
+            <dxo-pager
+              [visible]="true"
+              [showPageSizeSelector]="true"
+              [allowedPageSizes]="[10, 20, 50, 100]"
+              [showInfo]="true"
+              [showNavigationButtons]="true"
+              displayMode="full"
+            ></dxo-pager>
+
+            <dxi-column
+              dataField="maSp"
+              caption="Mã SP"
+              [width]="90"
+              alignment="center"
+            ></dxi-column>
+            <dxi-column dataField="tenSp" caption="Tên sản phẩm" [minWidth]="180"></dxi-column>
+            <dxi-column
+              dataField="giaBan"
+              caption="Giá bán"
+              dataType="number"
+              format="#,##0 đ"
+              alignment="right"
+              [width]="130"
+            ></dxi-column>
+
+            <dxi-column
+              dataField="soLuong"
+              caption="Tồn kho"
+              alignment="center"
+              [width]="110"
+              cellTemplate="stockTemplate"
+            >
+              <div *dxTemplate="let cell of 'stockTemplate'">
+                @if (cell.value > 10) {
+                  <span
+                    class="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700"
+                  >
+                    {{ cell.value }} cái
+                  </span>
+                } @else if (cell.value > 0) {
+                  <span
+                    class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700"
+                  >
+                    {{ cell.value }} cái
+                  </span>
+                } @else {
+                  <span
+                    class="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700"
+                  >
+                    Hết hàng
+                  </span>
+                }
+              </div>
+            </dxi-column>
+
+            <dxi-column
+              dataField="trangThai"
+              caption="Trạng thái"
+              alignment="center"
+              [width]="120"
+              cellTemplate="statusTemplate"
+            >
+              <div *dxTemplate="let cell of 'statusTemplate'">
+                <span
+                  [ngClass]="
+                    cell.value === 1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                  "
+                  class="px-2.5 py-1 rounded-full text-xs font-medium"
+                >
+                  {{ cell.value === 1 ? 'Đang bán' : 'Ngừng bán' }}
+                </span>
+              </div>
+            </dxi-column>
+
+            <dxi-column
+              caption="Hành động"
+              [width]="130"
+              alignment="center"
+              [allowFiltering]="false"
+              [allowSorting]="false"
+              cellTemplate="actionTemplate"
+            >
+              <div
+                *dxTemplate="let cell of 'actionTemplate'"
+                class="flex items-center justify-center gap-1"
+              >
+                <dx-button
+                  icon="edit"
+                  hint="Sửa thông tin"
+                  stylingMode="text"
+                  type="default"
+                  (onClick)="openEditPopup(cell.data)"
+                ></dx-button>
+                <dx-button
+                  icon="trash"
+                  hint="Xóa sản phẩm"
+                  stylingMode="text"
+                  type="danger"
+                  (onClick)="onDeleteProduct(cell.data)"
+                ></dx-button>
+              </div>
+            </dxi-column>
+          </dx-data-grid>
+        </main>
+      </div>
+
+      <dx-popup
+        [fullScreen]="true"
+        [(visible)]="isPdfPreviewOpen"
+        (onHiding)="closePdfPreview()"
+        [showTitle]="true"
+        title="Bản In Báo Cáo Sản Phẩm — DevExpress PDF Preview"
+        [showCloseButton]="true"
+        [hideOnOutsideClick]="false"
+      >
+        <div
+          *dxTemplate="let data of 'content'"
+          class="flex flex-col w-full h-full overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-gray-200 shrink-0"
+          >
+            <div class="flex items-center gap-2 flex-1">
+              <i class="dx-icon-pdffile text-red-500 text-lg"></i>
+              <span class="text-sm font-semibold text-gray-700">DanhSachSanPham.pdf</span>
+              <span class="text-xs text-gray-500"
+                >· Bản in chính thức kết xuất từ DevExpress Reporting</span
+              >
+            </div>
+            <dx-button
+              icon="print"
+              text="In báo cáo"
+              type="default"
+              stylingMode="contained"
+              (onClick)="triggerPrintPdf()"
+            ></dx-button>
+            <dx-button
+              icon="download"
+              text="Tải PDF"
+              stylingMode="outlined"
+              (onClick)="downloadPdfDirectly()"
+            ></dx-button>
+            <dx-button
+              icon="export"
+              text="Mở tab riêng"
+              stylingMode="text"
+              (onClick)="openPdfInNewTab()"
+            ></dx-button>
+          </div>
+
+          <div class="flex-1 w-full h-full overflow-hidden bg-gray-700">
+            @if (pdfSafeUrl()) {
+              <iframe
+                id="productPdfFrame"
+                class="w-full h-full border-0 block"
+                [src]="pdfSafeUrl()"
+                title="DevExpress Product Report PDF"
+              ></iframe>
+            } @else {
+              <div class="flex items-center justify-center w-full h-full text-white text-sm gap-3">
+                <i class="dx-icon-clock text-2xl text-gray-300"></i>
+                <p>Đang chuẩn bị dữ liệu báo cáo...</p>
+              </div>
+            }
+          </div>
+        </div>
+      </dx-popup>
+
+      <div
+        class="fixed bottom-0 left-0 right-0 h-80 bg-white border-t-2 border-blue-200 shadow-2xl flex flex-col z-50 transition-transform duration-300 ease-in-out"
+        [class.translate-y-0]="isDrawerOpen()"
+        [class.translate-y-full]="!isDrawerOpen()"
+      >
+        <div
+          class="px-5 py-2.5 bg-gray-900 border-b border-gray-700 flex items-center justify-between gap-4 shrink-0"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="dx-icon-codeblock text-blue-400"></i>
+              Ngăn Kỹ Thuật — Cấu Hình & API Sản Phẩm
+            </span>
+            <span class="text-xs text-gray-400 font-mono">
+              GET /api/san-pham · {{ totalProducts() }} bản ghi
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <dx-button
+              icon="copy"
+              text="Sao chép JSON"
+              stylingMode="contained"
+              type="default"
+              (onClick)="copyDebugJson()"
+            ></dx-button>
+            <dx-button
+              icon="close"
+              stylingMode="text"
+              hint="Đóng ngăn kéo"
+              (onClick)="closeDrawer()"
+              [elementAttr]="{ style: 'color: white' }"
+            ></dx-button>
+          </div>
+        </div>
+
+        <div class="flex-1 p-4 overflow-auto bg-slate-950">
+          <pre
+            class="m-0 text-green-400 font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-all"
+            >{{ debugJson() }}</pre>
+        </div>
+      </div>
+
+      <app-popup
+        [(isVisible)]="isCrudPopupVisible"
+        [mode]="crudPopupMode"
+        [productData]="selectedProduct"
+        (onSave)="saveProduct()"
+      ></app-popup>
+
+      <dx-load-panel
+        [visible]="isLoading()"
+        [showIndicator]="true"
+        [showPane]="true"
+        [shading]="true"
+        message="Hệ thống đang tải dữ liệu sản phẩm..."
+      ></dx-load-panel>
+    </div>
+  </app-layout>
+</div>

@@ -1,0 +1,52 @@
+<dx-popup
+  [(visible)]="isVisible"
+  [showTitle]="true"
+  [title]="mode === 'add' ? 'Thêm Sản Phẩm Mới' : 'Cập Nhật Thông Tin Sản Phẩm'"
+  [width]="520"
+  [height]="'auto'"
+  [dragEnabled]="true"
+  [hideOnOutsideClick]="false"
+  (onHiding)="close()"
+>
+  <div *dxTemplate="let data of 'content'" class="p-3 flex flex-col gap-4">
+    <div class="flex flex-col gap-1">
+      <dx-text-box
+        label="Tên sản phẩm *"
+        labelMode="floating"
+        [(value)]="productData.tenSp"
+        placeholder="Nhập tên sản phẩm..."
+        [showClearButton]="true"
+      ></dx-text-box>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <dx-number-box
+        label="Giá bán (VNĐ)"
+        labelMode="floating"
+        [(value)]="productData.giaBan"
+        [min]="0"
+        format="#,##0 đ"
+        [showSpinButtons]="true"
+      ></dx-number-box>
+
+      <dx-number-box
+        label="Số lượng tồn kho"
+        labelMode="floating"
+        [(value)]="productData.soLuong"
+        [min]="0"
+        [showSpinButtons]="true"
+      ></dx-number-box>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-3 border-t border-gray-100 mt-2">
+      <dx-button text="Hủy bỏ" stylingMode="outlined" type="normal" (onClick)="close()"></dx-button>
+      <dx-button
+        icon="check"
+        [text]="mode === 'add' ? 'Thêm mới' : 'Lưu thay đổi'"
+        type="default"
+        stylingMode="contained"
+        (onClick)="save()"
+      ></dx-button>
+    </div>
+  </div>
+</dx-popup>

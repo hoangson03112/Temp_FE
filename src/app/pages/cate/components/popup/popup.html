@@ -1,0 +1,62 @@
+<dx-popup
+  [(visible)]="isVisible"
+  [showTitle]="true"
+  [title]="mode === 'add' ? 'Thêm Danh Mục Mới' : 'Cập Nhật Thông Tin Danh Mục'"
+  [width]="520"
+  [height]="'auto'"
+  [dragEnabled]="true"
+  [hideOnOutsideClick]="false"
+  (onHiding)="close()"
+>
+  <div *dxTemplate="let data of 'content'" class="p-3 flex flex-col gap-4">
+    <!-- Tên danh mục -->
+    <div class="flex flex-col gap-1">
+      <dx-text-box
+        label="Tên danh mục *"
+        labelMode="floating"
+        [value]="categoryData.tenDm || ''"
+        (onValueChanged)="categoryData.tenDm = $event.value"
+        placeholder="Nhập tên danh mục..."
+        [showClearButton]="true"
+      ></dx-text-box>
+    </div>
+
+    <!-- Mô tả -->
+    <div class="flex flex-col gap-1">
+      <dx-text-area
+        label="Mô tả"
+        labelMode="floating"
+        [value]="categoryData.moTa || ''"
+        (onValueChanged)="categoryData.moTa = $event.value"
+        placeholder="Nhập mô tả danh mục..."
+        [height]="90"
+      ></dx-text-area>
+    </div>
+
+    @if (mode === 'edit') {
+      <div class="flex flex-col gap-1">
+        <dx-select-box
+          label="Trạng thái"
+          labelMode="floating"
+          [items]="statusOptions"
+          displayExpr="text"
+          valueExpr="value"
+          [value]="categoryData.trangThai ?? 1"
+          (onValueChanged)="categoryData.trangThai = $event.value"
+        ></dx-select-box>
+      </div>
+    }
+
+    <!-- Nút hành động -->
+    <div class="flex justify-end gap-3 pt-3 border-t border-gray-100 mt-2">
+      <dx-button text="Hủy bỏ" stylingMode="outlined" type="normal" (onClick)="close()"></dx-button>
+      <dx-button
+        icon="check"
+        [text]="mode === 'add' ? 'Thêm mới' : 'Lưu thay đổi'"
+        type="default"
+        stylingMode="contained"
+        (onClick)="onSaveCate()"
+      ></dx-button>
+    </div>
+  </div>
+</dx-popup>

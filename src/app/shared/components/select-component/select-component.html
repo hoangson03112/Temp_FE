@@ -1,0 +1,26 @@
+<dx-select-box
+  [dataSource]="selectBoxDataSource"
+  valueExpr="id"
+  [displayExpr]="displayFn"
+  [(value)]="selectedId"
+  [searchEnabled]="true"
+  searchMode="contains"
+  [minSearchLength]="0"
+  [searchTimeout]="300"
+  [showClearButton]="true"
+  placeholder="Chọn hoặc nhập từ khóa..."
+  (onOpened)="onOpened($event)"
+  [searchExpr]="['ma', 'ten']"
+  [dropDownOptions]="dropDownOptions"
+  [focusStateEnabled]="false"
+  noDataText="Không tìm thấy dữ liệu"
+>
+  <div *dxTemplate="let item of 'item'" class="grid grid-cols-[120px_1fr] items-center">
+    <span class="px-3 py-2.5 font-semibold text-blue-700 border-r border-gray-200">
+      {{ item.ma }}
+    </span>
+    <span class="px-3 py-2.5 text-gray-900 rap-break-word">
+      {{ item.ten }}
+    </span>
+  </div>
+</dx-select-box>

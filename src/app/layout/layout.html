@@ -1,0 +1,13 @@
+<div class="flex h-screen overflow-hidden gap-2">
+  @if (this._layoutService.isOpenSidebar()) {
+    <app-sidebar class="w-70 transition-all duration-300" />
+  }
+
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <app-header class="shrink-0" />
+
+    <main class="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <ng-content></ng-content>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="min-h-screen bg-slate-100 flex justify-center items-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200/80 p-8 flex flex-col justify-between">
+    <div>
+      <div class="flex justify-center mb-6">
+        <div class="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-blue-500/30">
+          FE
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold text-slate-900 text-center mb-1">Đăng nhập</h2>
+      <p class="text-sm text-slate-500 text-center mb-6">Nhập thông tin xác thực để vào hệ thống</p>
+
+      @if (errorMessage()) {
+        <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2">
+          <i class="dx-icon-warning text-red-500 mt-0.5"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form (submit)="onLogin(); $event.preventDefault()" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Tài khoản hoặc Email
+          </label>
+          <dx-text-box
+            [value]="userNameOrEmail()"
+            (onValueChanged)="userNameOrEmail.set($event.value)"
+            placeholder="Nhập username hoặc email..."
+            stylingMode="outlined"
+            class="rounded-lg! border-slate-300!"
+          ></dx-text-box>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              Mật khẩu
+            </label>
+          </div>
+          <dx-text-box
+            [value]="password()"
+            (onValueChanged)="password.set($event.value)"
+            mode="password"
+            placeholder="Nhập mật khẩu..."
+            stylingMode="outlined"
+            class="rounded-lg! border-slate-300!"
+            (onEnterKey)="onLogin()"
+          ></dx-text-box>
+        </div>
+
+        <div class="pt-2">
+          <dx-button
+            class="bg-blue-600! hover:bg-blue-700! text-white! rounded-xl! h-11! shadow-sm font-medium transition-all"
+            [text]="isLoading() ? 'Đang xác thực...' : 'Đăng nhập'"
+            type="default"
+            stylingMode="contained"
+            width="100%"
+            [disabled]="isLoading()"
+            (onClick)="onLogin()"
+          ></dx-button>
+        </div>
+      </form>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+      <span class="text-sm text-slate-600">
+        Chưa có tài khoản?
+        <a routerLink="/auth/register" class="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer">
+          Đăng ký ngay
+        </a>
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,120 @@
+<div class="min-h-screen bg-slate-100 flex justify-center items-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200/80 p-8 flex flex-col justify-between">
+    <div>
+      <div class="flex justify-center mb-6">
+        <div class="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-blue-500/30">
+          FE
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold text-slate-900 text-center mb-1">Tạo tài khoản</h2>
+      <p class="text-sm text-slate-500 text-center mb-6">Đăng ký tài khoản để truy cập hệ thống</p>
+
+      @if (errorMessage()) {
+        <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2">
+          <i class="dx-icon-warning text-red-500 mt-0.5"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm flex items-start gap-2">
+          <i class="dx-icon-check text-emerald-500 mt-0.5"></i>
+          <span>{{ successMessage() }}</span>
+        </div>
+      }
+
+      <form (submit)="onRegister(); $event.preventDefault()" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Tên đăng nhập <span class="text-rose-500">*</span>
+          </label>
+          <dx-text-box
+            [value]="userName()"
+            (onValueChanged)="userName.set($event.value)"
+            placeholder="Tên tài khoản (username)..."
+            stylingMode="outlined"
+            class="rounded-lg! border-slate-300!"
+          ></dx-text-box>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Email <span class="text-rose-500">*</span>
+          </label>
+          <dx-text-box
+            [value]="email()"
+            (onValueChanged)="email.set($event.value)"
+            placeholder="name@company.com"
+            stylingMode="outlined"
+            type="email"
+            class="rounded-lg! border-slate-300!"
+          ></dx-text-box>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Họ và tên
+          </label>
+          <dx-text-box
+            [value]="fullName()"
+            (onValueChanged)="fullName.set($event.value)"
+            placeholder="Nguyễn Văn A"
+            stylingMode="outlined"
+            class="rounded-lg! border-slate-300!"
+          ></dx-text-box>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Mật khẩu <span class="text-rose-500">*</span>
+          </label>
+          <dx-text-box
+            [value]="password()"
+            (onValueChanged)="password.set($event.value)"
+            mode="password"
+            placeholder="Tối thiểu 6 ký tự..."
+            stylingMode="outlined"
+            class="rounded-lg! border-slate-300!"
+          ></dx-text-box>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Xác nhận mật khẩu <span class="text-rose-500">*</span>
+          </label>
+          <dx-text-box
+            [value]="confirmPassword()"
+            (onValueChanged)="confirmPassword.set($event.value)"
+            mode="password"
+            placeholder="Nhập lại mật khẩu..."
+            stylingMode="outlined"
+            class="rounded-lg! border-slate-300!"
+            (onEnterKey)="onRegister()"
+          ></dx-text-box>
+        </div>
+
+        <div class="pt-2">
+          <dx-button
+            class="bg-blue-600! hover:bg-blue-700! text-white! rounded-xl! h-11! shadow-sm font-medium transition-all"
+            [text]="isLoading() ? 'Đang đăng ký...' : 'Đăng ký tài khoản'"
+            type="default"
+            stylingMode="contained"
+            width="100%"
+            [disabled]="isLoading()"
+            (onClick)="onRegister()"
+          ></dx-button>
+        </div>
+      </form>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+      <span class="text-sm text-slate-600">
+        Đã có tài khoản?
+        <a routerLink="/auth/login" class="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer">
+          Đăng nhập
+        </a>
+      </span>
+    </div>
+  </div>
+</div>

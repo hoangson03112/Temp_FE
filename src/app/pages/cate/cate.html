@@ -1,0 +1,163 @@
+<div class="h-screen bg-gray-100 p-4 overflow-hidden flex flex-col">
+  <app-layout class="flex-1 flex flex-col h-full overflow-hidden">
+    <div
+      class="flex-1 flex flex-col h-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative"
+    >
+      <!-- HEADER TOOLBAR -->
+      <div class="px-3 py-2 border-b border-gray-200 bg-white shadow-xs shrink-0">
+        <dx-toolbar>
+          <dxi-item location="before" locateInMenu="never">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
+                <i class="dx-icon-folder text-blue-600 text-xl"></i>
+                <span class="font-bold text-sm text-gray-800 tracking-tight">
+                  Quản Lý Danh Mục
+                </span>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-700">
+                <i class="dx-icon-docfile text-blue-500 text-[12px]"></i>
+                {{ totalCategories() }} danh mục
+              </span>
+            </div>
+          </dxi-item>
+
+          <dxi-item location="after" locateInMenu="never">
+            <dx-button
+              icon="plus"
+              text="Thêm danh mục"
+              type="default"
+              stylingMode="contained"
+              (onClick)="openAddPopup()"
+            ></dx-button>
+          </dxi-item>
+
+          <dxi-item location="after" locateInMenu="auto">
+            <dx-button
+              icon="refresh"
+              text="Tải lại"
+              stylingMode="outlined"
+              [disabled]="isLoading()"
+              (onClick)="refresh()"
+            ></dx-button>
+          </dxi-item>
+        </dx-toolbar>
+      </div>
+
+      <!-- MAIN TABLE -->
+      <div class="flex flex-row flex-1 overflow-hidden relative">
+        <main class="flex-1 flex flex-col h-full overflow-hidden p-3 bg-gray-50/50">
+          <dx-data-grid
+            [dataSource]="dataSource"
+            [remoteOperations]="true"
+            [showBorders]="true"
+            [showRowLines]="true"
+            [rowAlternationEnabled]="true"
+            [allowColumnReordering]="true"
+            [allowColumnResizing]="true"
+            [columnAutoWidth]="true"
+            [height]="'100%'"
+            class="bg-white rounded-lg shadow-2xs"
+          >
+            <dxo-search-panel
+              [visible]="true"
+              placeholder="Tìm kiếm nhanh danh mục..."
+            ></dxo-search-panel>
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-paging [pageSize]="filterPageSize"></dxo-paging>
+            <dxo-pager
+              [visible]="true"
+              [showPageSizeSelector]="true"
+              [allowedPageSizes]="[10, 20, 50, 100]"
+              [showInfo]="true"
+              [showNavigationButtons]="true"
+              displayMode="full"
+            ></dxo-pager>
+
+            <dxi-column
+              dataField="maDm"
+              caption="Mã Danh mục"
+              [width]="150"
+              alignment="center"
+            ></dxi-column>
+            <dxi-column
+              dataField="tenDm"
+              caption="Tên danh mục"
+              [minWidth]="180"
+            ></dxi-column>
+            <dxi-column
+              dataField="moTa"
+              caption="Mô Tả"
+              [minWidth]="250"
+            ></dxi-column>
+
+            <dxi-column
+              dataField="trangThai"
+              caption="Trạng thái"
+              alignment="center"
+              [width]="120"
+              cellTemplate="statusTemplate"
+            >
+              <div *dxTemplate="let cell of 'statusTemplate'">
+                <span
+                  [ngClass]="
+                    cell.value === 1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                  "
+                  class="px-2.5 py-1 rounded-full text-xs font-medium"
+                >
+                  {{ cell.value === 1 ? 'Hoạt động' : 'Bị khoá' }}
+                </span>
+              </div>
+            </dxi-column>
+
+            <dxi-column
+              caption="Hành động"
+              [width]="130"
+              alignment="center"
+              [allowFiltering]="false"
+              [allowSorting]="false"
+              cellTemplate="actionTemplate"
+            >
+              <div
+                *dxTemplate="let cell of 'actionTemplate'"
+                class="flex items-center justify-center gap-1"
+              >
+                <dx-button
+                  icon="edit"
+                  hint="Sửa thông tin"
+                  stylingMode="text"
+                  type="default"
+                  (onClick)="openEditPopup(cell.data)"
+                ></dx-button>
+                <dx-button
+                  icon="trash"
+                  hint="Xóa danh mục"
+                  stylingMode="text"
+                  type="danger"
+                  (onClick)="onDeleteCategory(cell.data)"
+                ></dx-button>
+              </div>
+            </dxi-column>
+          </dx-data-grid>
+        </main>
+      </div>
+
+      <!-- POPUP THÊM / CẬP NHẬT -->
+      <app-cate-popup
+        [(isVisible)]="isCrudPopupVisible"
+        [mode]="crudPopupMode"
+        [categoryData]="selectedCategory"
+        (onSave)="saveCate()"
+      ></app-cate-popup>
+
+      <!-- LOADING PANEL -->
+      <dx-load-panel
+        [visible]="isLoading()"
+        [showIndicator]="true"
+        [showPane]="true"
+        [shading]="true"
+        message="Hệ thống đang tải dữ liệu danh mục..."
+      ></dx-load-panel>
+    </div>
+  </app-layout>
+</div>
