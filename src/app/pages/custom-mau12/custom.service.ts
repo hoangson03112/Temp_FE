@@ -10,7 +10,9 @@ export class CustomService {
   private readonly base = `${environment.apiBaseUrl}/api`;
   private readonly http = inject(HttpClient);
 
-  saveCustomMau12(body: CauHinh): Observable<ApiResponse<void>> {
-    return this.http.put<ApiResponse<void>>(`${this.base}/danh-muc`, body);
+  saveCustomMau12(body: CauHinh): Observable<Blob> {
+    return this.http.put(`${this.base}/bao-cao/custom/mau-12-cbh`, body, {
+      responseType: 'blob',
+    });
   }
 }

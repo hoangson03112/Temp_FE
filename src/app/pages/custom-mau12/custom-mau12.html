@@ -15,7 +15,7 @@
           </dxi-item>
           <dxi-item location="after">
             <dx-button
-              text="Lưu"
+              text="Xuất"
               type="default"
               stylingMode="contained"
               icon="save"
@@ -367,3 +367,37 @@
     </div>
   </app-layout>
 </div>
+<dx-popup
+  [fullScreen]="true"
+  [(visible)]="isPdfPreviewOpen"
+  (onHiding)="closePdfPreview()"
+  [showTitle]="true"
+  title="Mẫu số 12-CBH"
+  [showCloseButton]="true"
+  [hideOnOutsideClick]="false"
+>
+  <div *dxTemplate="let data of 'content'" class="flex flex-col w-full h-full overflow-hidden">
+    <div class="flex-1 w-full h-full overflow-hidden bg-gray-700">
+      @if (pdfSafeUrl()) {
+        <iframe
+          id="mau12PdfFrame"
+          class="w-full h-full border-0 block"
+          [src]="pdfSafeUrl()"
+          title="Custom Mau12 Report PDF"
+        ></iframe>
+      } @else {
+        <div class="flex items-center justify-center w-full h-full text-white text-sm gap-3">
+          <i class="dx-icon-clock text-2xl text-gray-300"></i>
+          <p>Đang chuẩn bị dữ liệu báo cáo...</p>
+        </div>
+      }
+    </div>
+  </div>
+</dx-popup>
+<dx-load-panel
+  [visible]="isLoading()"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  message="Hệ thống đang tải dữ liệu..."
+></dx-load-panel>

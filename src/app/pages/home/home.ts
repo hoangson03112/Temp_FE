@@ -5,7 +5,6 @@ import { ToastService } from '../../core/services/toast.service';
 import { LayoutService } from '../../core/services/layout.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Mau12Service } from '../../core/services/mau12.service';
-import { NgIcon } from '@ng-icons/core';
 import { DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
 
 @Component({

@@ -2,12 +2,14 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Thêm CommonModule nếu cần
 import { FormsModule } from '@angular/forms'; // <--- QUAN TRỌNG: Thêm FormsModule để dùng [(ngModel)]
 import {
+  DxButtonGroupModule,
   DxButtonModule,
   DxCheckBoxModule,
   DxDataGridModule,
   DxDateBoxModule,
   DxLoadPanelModule,
   DxNumberBoxModule,
+  DxPopupModule,
   DxSelectBoxModule,
   DxTextBoxModule,
   DxToolbarModule,
@@ -17,6 +19,8 @@ import { DxiColumnModule } from 'devextreme-angular/ui/nested';
 import { CauHinh, TextStyle } from './custome.type';
 import { FontPicker, FontStyleValue } from './components/font-picker/font-picker';
 import { CustomService } from './custom.service';
+import { ToastService } from '../../core/services/toast.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-custom-mau12',
@@ -36,19 +40,27 @@ import { CustomService } from './custom.service';
     DxCheckBoxModule,
     FontPicker,
     DxDateBoxModule,
+    DxButtonGroupModule,
+    DxPopupModule,
   ],
   templateUrl: './custom-mau12.html',
 })
 export class CustomMau12 {
   readonly isLoading = signal<boolean>(false);
   readonly customService = inject(CustomService);
+  private _toastService = inject(ToastService);
+  readonly pdfSafeUrl = signal<SafeResourceUrl | null>(null);
+  readonly pdfDirectUrl = signal<string | null>(null);
+  readonly isPdfPreviewOpen = signal(false);
+  private readonly sanitizer = inject(DomSanitizer);
+
   customCauHinh: CauHinh = {
     setUpTrang: {
       khoGiay: 'A4',
-      canLeTop: 15,
-      canLeBottom: 15,
-      canLeLeft: 20,
-      canLeRight: 15,
+      canLeTop: 25,
+      canLeBottom: 20,
+      canLeLeft: 6,
+      canLeRight: 5,
     },
     header: {
       tenDonVi: {
@@ -87,7 +99,6 @@ export class CustomMau12 {
         fontFamily: 'Times New Roman',
         fontSize: 10,
         bold: true,
-        alignment: 'center',
       },
       groupHeader: {
         fontFamily: 'Times New Roman',
@@ -117,18 +128,7 @@ export class CustomMau12 {
         fontFamily: 'Times New Roman',
         fontSize: 11,
       },
-      danhSachNguoiKy: [
-        {
-          id: 5,
-          tenNguoiKy: 'Vũ Hoàng Sơn',
-          hienThi: true,
-        },
-        {
-          id: 1,
-          tenNguoiKy: 'Vũ Hoàng Sơn',
-          hienThi: true,
-        },
-      ],
+      danhSachNguoiKy: [],
     },
   };
   readonly thangOptions = Array.from({ length: 12 }, (_, index) => index + 1);
@@ -143,7 +143,6 @@ export class CustomMau12 {
     { value: 'B4', text: 'B4 (250 x 353 mm)' },
     { value: 'B5', text: 'B5 (176 x 250 mm)' },
   ];
-
   nguoiKyList: { id: number; chucDanh: string; tieuDeNguoiKy: string }[] = [
     {
       id: 1,
@@ -226,6 +225,9 @@ export class CustomMau12 {
   toggleCustomGrid() {
     this.isOpenCustomGrid = !this.isOpenCustomGrid;
   }
+  closePdfPreview() {
+    this.isPdfPreviewOpen.set(false);
+  }
   getTenNguoiKy(id: number) {
     const item = this.customCauHinh.footer.danhSachNguoiKy.find((item) => item.id === id);
 
@@ -254,14 +256,47 @@ export class CustomMau12 {
 
   private getOrCreateNguoiKy(id: number) {
     let item = this.customCauHinh.footer.danhSachNguoiKy.find((nguoiKy) => nguoiKy.id === id);
+    const origin = this.nguoiKyList.find((nk) => nk.id === id);
 
     if (!item) {
-      item = { id, tenNguoiKy: '', hienThi: true };
+      item = {
+        id,
+        tenNguoiKy: '',
+        hienThi: true,
+        chucDanh: origin?.chucDanh ?? '',
+        tieuDeNguoiKy: origin?.tieuDeNguoiKy ?? '',
+      };
       this.customCauHinh.footer.danhSachNguoiKy.push(item);
+    } else {
+      item.chucDanh = origin?.chucDanh;
+      item.tieuDeNguoiKy = origin?.tieuDeNguoiKy;
     }
+
     return item;
   }
   onSave(): void {
-    this.customService.saveCustomMau12(this.customCauHinh);
+    console.log(this.customCauHinh);
+    this.customService.saveCustomMau12(this.customCauHinh).subscribe({
+      next: (blob: Blob) => {
+        this.isLoading.set(false);
+        if (blob.type === 'application/json') {
+          blob.text().then((text) => console.error('Lỗi server:', text));
+          this._toastService.show('Lỗi khi kết xuất PDF từ hệ thống.', 'error');
+          return;
+        }
+        const blobUrl = URL.createObjectURL(blob);
+        this.pdfDirectUrl.set(blobUrl);
+        this.pdfSafeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl));
+        this.isPdfPreviewOpen.set(true);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error('Lỗi xuất PDF:', err);
+        this._toastService.show(
+          'Không thể kết xuất báo cáo PDF. Vui lòng kiểm tra backend.',
+          'error',
+        );
+      },
+    });
   }
 }

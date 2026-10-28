@@ -2,6 +2,8 @@ export interface NguoiKy {
   id: number;
   tenNguoiKy: string;
   hienThi: boolean;
+  chucDanh?: string;
+  tieuDeNguoiKy?: string;
 }
 export interface SetUpTrang {
   khoGiay: string;
