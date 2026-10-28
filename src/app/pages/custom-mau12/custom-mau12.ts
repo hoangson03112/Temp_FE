@@ -1,61 +1,22 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Thêm CommonModule nếu cần
 import { FormsModule } from '@angular/forms'; // <--- QUAN TRỌNG: Thêm FormsModule để dùng [(ngModel)]
 import {
   DxButtonModule,
+  DxCheckBoxModule,
   DxDataGridModule,
+  DxDateBoxModule,
   DxLoadPanelModule,
+  DxNumberBoxModule,
   DxSelectBoxModule,
   DxTextBoxModule,
   DxToolbarModule,
 } from 'devextreme-angular';
 import { Layout } from '../../layout/layout';
 import { DxiColumnModule } from 'devextreme-angular/ui/nested';
-
-export interface NguoiKy {
-  id: number;
-  tenNguoiKy: string;
-  hienThi: boolean;
-}
-export interface SetUpTrang {
-  khoGiay: string;
-  canLeTop: number;
-  canLeBottom: number;
-  canLeLeft: number;
-  canLeRight: number;
-}
-export interface TextStyle {
-  fontFamily?: string;
-  fontSize?: number;
-  bold?: boolean;
-  italic?: boolean;
-  color?: string;
-  alignment?: 'left' | 'center' | 'right';
-}
-export interface PageHeaderStyle extends TextStyle {
-  text: string;
-}
-export interface CauHinh {
-  setUpTrang: SetUpTrang;
-  header: {
-    tenDonVi: PageHeaderStyle;
-    coSoChiTra: PageHeaderStyle;
-    thang: PageHeaderStyle;
-    nam: PageHeaderStyle;
-    hinhThucChiTra: PageHeaderStyle;
-    nguonKinhPhi: PageHeaderStyle;
-  };
-  grid: {
-    headerRow: TextStyle;
-    dataRow: TextStyle;
-    summaryRow?: TextStyle;
-  };
-  footer: {
-    ngayThang: TextStyle;
-    danhSachNguoiKy: NguoiKy[];
-    styleChungNguoiKy?: TextStyle;
-  };
-}
+import { CauHinh, TextStyle } from './custome.type';
+import { FontPicker, FontStyleValue } from './components/font-picker/font-picker';
+import { CustomService } from './custom.service';
 
 @Component({
   selector: 'app-custom-mau12',
@@ -67,15 +28,20 @@ export interface CauHinh {
     DxButtonModule,
     DxToolbarModule,
     Layout,
+    DxNumberBoxModule,
     DxTextBoxModule,
     DxSelectBoxModule,
     DxDataGridModule,
     DxiColumnModule,
+    DxCheckBoxModule,
+    FontPicker,
+    DxDateBoxModule,
   ],
   templateUrl: './custom-mau12.html',
 })
 export class CustomMau12 {
   readonly isLoading = signal<boolean>(false);
+  readonly customService = inject(CustomService);
   customCauHinh: CauHinh = {
     setUpTrang: {
       khoGiay: 'A4',
@@ -86,35 +52,31 @@ export class CustomMau12 {
     },
     header: {
       tenDonVi: {
-        text: 'BHXH TỈNH/HUYỆN...',
+        text: 'BHXH TỈNH/HUYỆN',
         fontFamily: 'Times New Roman',
         fontSize: 11,
         bold: true,
       },
       coSoChiTra: {
-        text: 'Xã, phường, tổ chi trả: ........................',
+        text: 'BHXH cơ sở   Xã, phường, tổ chi trả: ',
         fontFamily: 'Times New Roman',
         fontSize: 11,
         italic: false,
       },
-      thang: {
-        text: 'Tháng ..... năm .....',
+      thangNam: {
+        thang: null as number | null,
+        nam: null as number | null,
         fontFamily: 'Times New Roman',
         fontSize: 11,
         alignment: 'center',
       },
-      nam: {
-        text: '',
-        fontFamily: 'Times New Roman',
-        fontSize: 11,
-      },
       hinhThucChiTra: {
-        text: 'Hình thức chi trả: ........................',
+        text: 'Hình thức chi trả:',
         fontFamily: 'Times New Roman',
         fontSize: 11,
       },
       nguonKinhPhi: {
-        text: 'Nguồn kinh phí: ........................',
+        text: 'Nguồn kinh phí:',
         fontFamily: 'Times New Roman',
         fontSize: 11,
       },
@@ -126,6 +88,11 @@ export class CustomMau12 {
         fontSize: 10,
         bold: true,
         alignment: 'center',
+      },
+      groupHeader: {
+        fontFamily: 'Times New Roman',
+        fontSize: 10,
+        bold: true,
       },
       dataRow: {
         fontFamily: 'Times New Roman',
@@ -164,7 +131,11 @@ export class CustomMau12 {
       ],
     },
   };
-
+  readonly thangOptions = Array.from({ length: 12 }, (_, index) => index + 1);
+  readonly namOptions = Array.from(
+    { length: 21 },
+    (_, index) => new Date().getFullYear() - 10 + index,
+  );
   readonly khoGiayOptions = [
     { value: 'A3', text: 'A3 (297 x 420 mm)' },
     { value: 'A4', text: 'A4 (210 x 297 mm) - Phổ biến' },
@@ -200,11 +171,60 @@ export class CustomMau12 {
       tieuDeNguoiKy: 'Người lập biểu',
     },
   ];
+  isOpenNguoiKy = false;
+  isOpenCustomFont = false;
+  isOpenCustomGrid = false;
 
-  isOpenTable = true;
+  tieuDeFont: FontStyleValue = {
+    family: 'Times New Roman',
+    size: 18,
+    bold: true,
+  };
 
-  toggleTable() {
-    this.isOpenTable = !this.isOpenTable;
+  getHeaderFontStyle(style: TextStyle): FontStyleValue {
+    return {
+      family: style.fontFamily ?? 'Times New Roman',
+      size: style.fontSize ?? 12,
+      bold: style.bold ?? false,
+      italic: style.italic ?? false,
+      underline: style.underline ?? false,
+    };
+  }
+
+  updateHeaderFontStyle(style: TextStyle, value: FontStyleValue) {
+    style.fontFamily = value.family;
+    style.fontSize = value.size;
+    style.bold = value.bold;
+    style.italic = value.italic;
+    style.underline = value.underline;
+  }
+
+  getTableFontStyle(style: TextStyle): FontStyleValue {
+    return {
+      family: style.fontFamily ?? 'Times New Roman',
+      size: style.fontSize ?? 12,
+      bold: style.bold ?? false,
+      italic: style.italic ?? false,
+      underline: style.underline ?? false,
+    };
+  }
+
+  updateTableFontStyle(style: TextStyle, value: FontStyleValue) {
+    style.fontFamily = value.family;
+    style.fontSize = value.size;
+    style.bold = value.bold;
+    style.italic = value.italic;
+    style.underline = value.underline;
+  }
+
+  toggleNguoiKy() {
+    this.isOpenNguoiKy = !this.isOpenNguoiKy;
+  }
+  toggleCustomFont() {
+    this.isOpenCustomFont = !this.isOpenCustomFont;
+  }
+  toggleCustomGrid() {
+    this.isOpenCustomGrid = !this.isOpenCustomGrid;
   }
   getTenNguoiKy(id: number) {
     const item = this.customCauHinh.footer.danhSachNguoiKy.find((item) => item.id === id);
@@ -218,8 +238,14 @@ export class CustomMau12 {
     );
   }
 
-  updateTenNguoiKy(id: number, tenNguoiKy: string) {
-    this.getOrCreateNguoiKy(id).tenNguoiKy = tenNguoiKy;
+  updateTenNguoiKy(id: number, event: any) {
+    const tenNguoiKy = event.target.value;
+    if (tenNguoiKy.trim() === '') {
+      this.getOrCreateNguoiKy(id).hienThi = false;
+    } else {
+      this.getOrCreateNguoiKy(id).tenNguoiKy = tenNguoiKy;
+      this.getOrCreateNguoiKy(id).hienThi = true;
+    }
   }
 
   updateHienThiNguoiKy(id: number, hienThi: boolean) {
@@ -230,10 +256,12 @@ export class CustomMau12 {
     let item = this.customCauHinh.footer.danhSachNguoiKy.find((nguoiKy) => nguoiKy.id === id);
 
     if (!item) {
-      item = { id, tenNguoiKy: '', hienThi: false };
+      item = { id, tenNguoiKy: '', hienThi: true };
       this.customCauHinh.footer.danhSachNguoiKy.push(item);
     }
-
     return item;
+  }
+  onSave(): void {
+    this.customService.saveCustomMau12(this.customCauHinh);
   }
 }

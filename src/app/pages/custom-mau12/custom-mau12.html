@@ -6,20 +6,28 @@
       <div class="px-3 py-2 border-b border-gray-200 bg-white shadow-xs shrink-0">
         <dx-toolbar>
           <dxi-item location="before" locateInMenu="never">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-2">
-                <i class="dx-icon-folder text-blue-600 text-xl"></i>
-                <span class="font-bold text-sm text-gray-800 tracking-tight">
-                  Cấu hình In mẫu 12 CBH
-                </span>
-              </div>
+            <div class="flex items-center gap-2">
+              <i class="dx-icon-folder text-blue-600 text-xl"></i>
+              <span class="font-bold text-sm text-gray-800 tracking-tight">
+                Cấu hình In mẫu 12 CBH
+              </span>
             </div>
+          </dxi-item>
+          <dxi-item location="after">
+            <dx-button
+              text="Lưu"
+              type="default"
+              stylingMode="contained"
+              icon="save"
+              (onClick)="onSave()"
+            >
+            </dx-button>
           </dxi-item>
         </dx-toolbar>
       </div>
 
       <div class="flex flex-row flex-1 overflow-hidden relative">
-        <main class="flex flex-col flex-1 gap-4 h-full p-6 overflow-hidden bg-gray-50/50">
+        <main class="flex flex-col flex-1 gap-4 h-full p-6 overflow-y-auto bg-gray-50/50">
           <div class="flex gap-6">
             <div class="flex-1 flex flex-col gap-1">
               <label class="text-sm font-medium text-gray-700">Khổ giấy</label>
@@ -35,43 +43,34 @@
             <div class="flex-1 flex flex-col">
               <label class="text-sm font-medium text-gray-700">Căn lề(mm)</label>
               <div class="flex gap-1">
-                <dx-text-box
-                  [value]="customCauHinh.setUpTrang.canLeTop"
+                <dx-number-box
+                  [(value)]="customCauHinh.setUpTrang.canLeTop"
                   label="Trên"
                   labelMode="floating"
-                  displayExpr="number"
-                  valueExpr="value"
                   stylingMode="outlined"
                   [showClearButton]="true"
-                  (ngModelChange)="updateMargin('canLeTop', $event)"
-                ></dx-text-box>
-                <dx-text-box
-                  [value]="customCauHinh.setUpTrang.canLeRight"
+                ></dx-number-box>
+                <dx-number-box
+                  [(value)]="customCauHinh.setUpTrang.canLeRight"
                   label="Phải"
                   labelMode="floating"
-                  displayExpr="text"
-                  valueExpr="value"
                   stylingMode="outlined"
                   [showClearButton]="true"
-                ></dx-text-box>
-                <dx-text-box
-                  [value]="customCauHinh.setUpTrang.canLeBottom"
+                ></dx-number-box>
+                <dx-number-box
+                  [(value)]="customCauHinh.setUpTrang.canLeBottom"
                   label="Dưới"
                   labelMode="floating"
-                  displayExpr="text"
-                  valueExpr="value"
                   stylingMode="outlined"
                   [showClearButton]="true"
-                ></dx-text-box>
-                <dx-text-box
-                  [value]="customCauHinh.setUpTrang.canLeLeft"
+                ></dx-number-box>
+                <dx-number-box
+                  [(value)]="customCauHinh.setUpTrang.canLeLeft"
                   label="Trái"
                   labelMode="floating"
-                  displayExpr="text"
-                  valueExpr="value"
                   stylingMode="outlined"
                   [showClearButton]="true"
-                ></dx-text-box>
+                ></dx-number-box>
               </div>
             </div>
           </div>
@@ -79,23 +78,242 @@
             <div class="border-0 bg-white rounded-lg shadow-sm overflow-hidden">
               <div
                 class="flex justify-between items-center px-4 py-3 bg-gray-50 cursor-pointer select-none hover:bg-gray-100 transition-colors"
-                (click)="toggleTable()"
+                (click)="toggleCustomFont()"
+              >
+                <span class="font-semibold text-gray-700 text-sm">Tuỳ chỉnh phần đầu báo cáo</span>
+                <i
+                  class="dx-icon transition-transform duration-200"
+                  [class.dx-icon-chevronup]="isOpenCustomFont"
+                  [class.dx-icon-chevrondown]="!isOpenCustomFont"
+                >
+                </i>
+              </div>
+              @if (isOpenCustomFont) {
+                <div class="space-y-4 rounded-lg border border-gray-200 bg-white p-4">
+                  <div class="flex gap-4">
+                    <div class="space-y-1.5 flex-1">
+                      <label for="tenDonVi" class="block text-sm font-medium text-gray-700">
+                        Tên đơn vị
+                      </label>
+                      <dx-text-box
+                        [(ngModel)]="customCauHinh.header.tenDonVi.text"
+                        class="app-input"
+                        [inputAttr]="{ id: 'tenDonVi' }"
+                        placeholder="Nhập tên đơn vị..."
+                        height="44"
+                        [showClearButton]="true"
+                      >
+                      </dx-text-box>
+                    </div>
+
+                    <div class="space-y-1.5 flex-1">
+                      <span class="block text-sm font-medium text-gray-700">Định dạng chữ</span>
+                      <app-font-picker
+                        [value]="getHeaderFontStyle(customCauHinh.header.tenDonVi)"
+                        (valueChange)="updateHeaderFontStyle(customCauHinh.header.tenDonVi, $event)"
+                      ></app-font-picker>
+                    </div>
+                  </div>
+                  <div class="flex gap-4">
+                    <div class="space-y-1.5 flex-1">
+                      <label for="coSoChiTra" class="block text-sm font-medium text-gray-700">
+                        Cơ sở chi trả
+                      </label>
+                      <dx-text-box
+                        [(ngModel)]="customCauHinh.header.coSoChiTra.text"
+                        class="app-input"
+                        [inputAttr]="{ id: 'coSoChiTra' }"
+                        placeholder="Nhập cơ sở chi trả..."
+                        height="44"
+                        [showClearButton]="true"
+                      >
+                      </dx-text-box>
+                    </div>
+
+                    <div class="space-y-1.5 flex-1">
+                      <span class="block text-sm font-medium text-gray-700">Định dạng chữ</span>
+                      <app-font-picker
+                        [value]="getHeaderFontStyle(customCauHinh.header.coSoChiTra)"
+                        (valueChange)="
+                          updateHeaderFontStyle(customCauHinh.header.coSoChiTra, $event)
+                        "
+                      ></app-font-picker>
+                    </div>
+                  </div>
+                  <div class="flex gap-4">
+                    <div class="space-y-1.5 flex-1">
+                      <label class="block text-sm font-medium text-gray-700">Tháng</label>
+                      <dx-select-box
+                        [items]="thangOptions"
+                        [(value)]="customCauHinh.header.thangNam.thang"
+                        placeholder="Chọn tháng..."
+                        [showClearButton]="true"
+                        stylingMode="outlined"
+                      ></dx-select-box>
+                    </div>
+
+                    <div class="space-y-1.5 flex-1">
+                      <label class="block text-sm font-medium text-gray-700">Năm</label>
+                      <dx-select-box
+                        [items]="namOptions"
+                        [(value)]="customCauHinh.header.thangNam.nam"
+                        placeholder="Chọn năm..."
+                        [showClearButton]="true"
+                        stylingMode="outlined"
+                      ></dx-select-box>
+                    </div>
+
+                    <div class="space-y-1.5 flex-1">
+                      <span class="block text-sm font-medium text-gray-700">Định dạng chữ</span>
+                      <app-font-picker
+                        [value]="getHeaderFontStyle(customCauHinh.header.thangNam)"
+                        (valueChange)="updateHeaderFontStyle(customCauHinh.header.thangNam, $event)"
+                      ></app-font-picker>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="space-y-1.5 flex-1">
+                      <label for="coSoChiTra" class="block text-sm font-medium text-gray-700">
+                        Hình thức chi trả
+                      </label>
+                      <dx-text-box
+                        [(ngModel)]="customCauHinh.header.hinhThucChiTra.text"
+                        class="app-input"
+                        [inputAttr]="{ id: 'hinhThucChiTra' }"
+                        placeholder="Hình thức chi trả"
+                        height="44"
+                        [showClearButton]="true"
+                      >
+                      </dx-text-box>
+                    </div>
+
+                    <div class="space-y-1.5 flex-1">
+                      <span class="block text-sm font-medium text-gray-700">Định dạng chữ</span>
+                      <app-font-picker
+                        [value]="getHeaderFontStyle(customCauHinh.header.hinhThucChiTra)"
+                        (valueChange)="
+                          updateHeaderFontStyle(customCauHinh.header.hinhThucChiTra, $event)
+                        "
+                      ></app-font-picker>
+                    </div>
+                  </div>
+                  <div class="flex gap-4">
+                    <div class="space-y-1.5 flex-1">
+                      <label for="coSoChiTra" class="block text-sm font-medium text-gray-700">
+                        Nguồn kinh phí
+                      </label>
+                      <dx-text-box
+                        [(ngModel)]="customCauHinh.header.nguonKinhPhi.text"
+                        class="app-input"
+                        [inputAttr]="{ id: 'nguonKinhPhi' }"
+                        placeholder="Nguồn kinh phí"
+                        height="44"
+                        [showClearButton]="true"
+                      >
+                      </dx-text-box>
+                    </div>
+
+                    <div class="space-y-1.5 flex-1">
+                      <span class="block text-sm font-medium text-gray-700">Định dạng chữ</span>
+                      <app-font-picker
+                        [value]="getHeaderFontStyle(customCauHinh.header.nguonKinhPhi)"
+                        (valueChange)="
+                          updateHeaderFontStyle(customCauHinh.header.nguonKinhPhi, $event)
+                        "
+                      ></app-font-picker>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <div class="border-0 bg-white rounded-lg shadow-sm overflow-hidden">
+              <div
+                class="flex justify-between items-center px-4 py-3 bg-gray-50 cursor-pointer select-none hover:bg-gray-100 transition-colors"
+                (click)="toggleCustomGrid()"
+              >
+                <span class="font-semibold text-gray-700 text-sm">Tuỳ chỉnh bảng dữ liệu</span>
+                <i
+                  class="dx-icon transition-transform duration-200"
+                  [class.dx-icon-chevronup]="isOpenCustomGrid"
+                  [class.dx-icon-chevrondown]="!isOpenCustomGrid"
+                >
+                </i>
+              </div>
+
+              @if (isOpenCustomGrid) {
+                <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+                  <header class="mb-4 border-b border-gray-100 pb-3">
+                    <h3 class="text-base font-semibold text-gray-900">Định dạng chữ bảng</h3>
+                    <p class="mt-0.5 text-sm text-gray-500">
+                      Chọn font, cỡ chữ và kiểu chữ cho từng phần của bảng.
+                    </p>
+                  </header>
+
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-medium text-gray-700">Tiêu đề bảng</label>
+                      <app-font-picker
+                        [value]="getTableFontStyle(customCauHinh.grid.headerRow)"
+                        (valueChange)="updateTableFontStyle(customCauHinh.grid.headerRow, $event)"
+                      ></app-font-picker>
+                    </div>
+
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Chế độ (Phân nhóm)
+                      </label>
+                      <app-font-picker
+                        [value]="getTableFontStyle(customCauHinh.grid.groupHeader)"
+                        (valueChange)="updateTableFontStyle(customCauHinh.grid.groupHeader, $event)"
+                      ></app-font-picker>
+                    </div>
+
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Dòng dữ liệu chi tiết
+                      </label>
+                      <app-font-picker
+                        [value]="getTableFontStyle(customCauHinh.grid.dataRow)"
+                        (valueChange)="updateTableFontStyle(customCauHinh.grid.dataRow, $event)"
+                      ></app-font-picker>
+                    </div>
+
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-medium text-gray-700">Tổng kết</label>
+                      <app-font-picker
+                        [value]="getTableFontStyle(customCauHinh.grid.summaryRow)"
+                        (valueChange)="updateTableFontStyle(customCauHinh.grid.summaryRow, $event)"
+                      ></app-font-picker>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <div class="border-0 bg-white rounded-lg shadow-sm overflow-hidden">
+              <div
+                class="flex justify-between items-center px-4 py-3 bg-gray-50 cursor-pointer select-none hover:bg-gray-100 transition-colors"
+                (click)="toggleNguoiKy()"
               >
                 <span class="font-semibold text-gray-700 text-sm">Người ký</span>
 
                 <i
                   class="dx-icon transition-transform duration-200"
-                  [class.dx-icon-chevronup]="isOpenTable"
-                  [class.dx-icon-chevrondown]="!isOpenTable"
+                  [class.dx-icon-chevronup]="isOpenNguoiKy"
+                  [class.dx-icon-chevrondown]="!isOpenNguoiKy"
                 >
                 </i>
               </div>
 
-              @if (isOpenTable) {
+              @if (isOpenNguoiKy) {
                 <div class="p-4 border-t border-gray-200">
                   <dx-data-grid
                     [dataSource]="nguoiKyList"
-                    [showBorders]="true"
                     [columnAutoWidth]="true"
                     [showBorders]="false"
                   >
@@ -107,13 +325,12 @@
                       cellTemplate="inputTemplate"
                     ></dxi-column>
                     <div *dxTemplate="let cell of 'inputTemplate'">
-                      <input
-                        type="text"
+                      <dx-text-box
                         class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-200"
                         [ngModel]="getTenNguoiKy(cell.data.id)"
-                        (ngModelChange)="updateTenNguoiKy(cell.data.id, $event)"
+                        (input)="updateTenNguoiKy(cell.data.id, $event)"
                         placeholder="Nhập tên người ký..."
-                      />
+                      ></dx-text-box>
                     </div>
                     <dxi-column
                       dataField="hienThi"
@@ -123,11 +340,14 @@
                       cellTemplate="visibleTemplate"
                     ></dxi-column>
                     <div *dxTemplate="let cell of 'visibleTemplate'">
-                      <input
-                        type="checkbox"
-                        [ngModel]="getHienThiNguoiKy(cell.data.id)"
-                        (ngModelChange)="updateHienThiNguoiKy(cell.data.id, $event)"
-                      />
+                      <dx-check-box
+                        class="ky-checkbox"
+                        [value]="getHienThiNguoiKy(cell.data.id)"
+                        (onValueChanged)="updateHienThiNguoiKy(cell.data.id, $event.value)"
+                        [elementAttr]="{ class: 'ky-checkbox' }"
+                        hint="Hiển thị người ký"
+                      >
+                      </dx-check-box>
                     </div>
                   </dx-data-grid>
                 </div>

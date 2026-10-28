@@ -1,0 +1,78 @@
+<!-- Khung tóm tắt + nút A nằm chung một khối -->
+<div
+  class="flex h-11 items-center rounded-lg border bg-white pl-3 pr-1 shadow-sm transition"
+  [ngClass]="
+    popoverVisible
+      ? 'border-blue-500 ring-4 ring-blue-100'
+      : 'border-gray-300 hover:border-gray-400'
+  "
+>
+  <span class="min-w-0 flex-1 truncate text-sm text-gray-700" [ngStyle]="previewStyle">
+    {{ summary }}
+  </span>
+
+  <dx-button
+    class="ml-2"
+    stylingMode="contained"
+    type="default"
+    text="A"
+    hint="Định dạng chữ"
+    width="36"
+    height="36"
+    [elementAttr]="{ id: btnId }"
+    (onClick)="popoverVisible = true"
+  >
+  </dx-button>
+</div>
+
+<dx-popover
+  [target]="'#' + btnId"
+  [(visible)]="popoverVisible"
+  position="bottom"
+  [width]="320"
+  [shading]="false"
+  [hideOnOutsideClick]="true"
+>
+  <div *dxTemplate="let data of 'content'" class="space-y-4 p-2">
+    <!-- Tiêu đề -->
+    <div class="flex items-center justify-between">
+      <h4 class="text-sm font-semibold text-gray-800">Định dạng chữ</h4>
+    </div>
+
+    <!-- Font chữ -->
+    <div class="space-y-1">
+      <label class="text-xs font-medium text-gray-500">Font chữ</label>
+      <dx-select-box
+        stylingMode="filled"
+        [items]="fonts"
+        [value]="value.family"
+        (onValueChanged)="patch({ family: $event.value })"
+      >
+      </dx-select-box>
+    </div>
+
+    <!-- Cỡ chữ + B / I / U -->
+    <div class="flex items-end justify-between gap-3">
+      <div class="w-28 space-y-1">
+        <label class="text-xs font-medium text-gray-500">Cỡ chữ</label>
+        <dx-select-box
+          stylingMode="filled"
+          [items]="sizes"
+          [value]="value.size"
+          (onValueChanged)="patch({ size: $event.value })"
+        >
+        </dx-select-box>
+      </div>
+
+      <dx-button-group
+        keyExpr="key"
+        stylingMode="outlined"
+        selectionMode="multiple"
+        [items]="styleItems"
+        [selectedItemKeys]="selectedKeys"
+        (onSelectionChanged)="onStyleChanged($event)"
+      >
+      </dx-button-group>
+    </div>
+  </div>
+</dx-popover>
